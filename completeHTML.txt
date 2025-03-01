@@ -1,0 +1,1351 @@
+<div class="containTab" style="background-color: #fff;">
+  <form [formGroup]="supportGovernanceDetailsForm">
+    <!-- Header Section -->
+    <div class="row">
+      <div class="col-md-12 body-1 pr-0 support-feedback-comp">
+        <div class="col-md-6">
+          <div>
+            <h4 class="p-3 m-0 text-left">{{pageTitle}}</h4>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Main Content Area -->
+      <div class="col-md-6 body-content-1" style="margin-top: 10px;">
+        <!-- Support/Feedback Request Section -->
+        <ng-container *ngIf="supportType === SupportTypeEnum.SupportFeedback">
+          <!-- Common Request Details -->
+          <div class="row">
+            <div class="col-sm-4 righttxt">
+              <label class="Input-Label">Id</label>
+            </div>
+            <div class="col-sm-5">
+              <span>{{supportGovernanceDetails?.Id}}</span>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-sm-4 righttxt">
+              <label class="Input-Label">Requested by</label>
+            </div>
+            <div class="col-sm-5">
+              <span>{{supportGovernanceDetails?.RequestedBy}}</span>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-sm-4 righttxt">
+              <label class="Input-Label">Requested date</label>
+            </div>
+            <div class="col-sm-5">
+              <span>{{requestedDateInCustomFormat}}</span>
+            </div>
+          </div>
+          
+          <!-- Assigned To Field - Editable -->
+          <div class="row" *ngIf="isEditable">
+            <div class="col-sm-4 righttxt">
+              <label class="labelsty" for="assignToFormControl">Assigned To</label>
+            </div>
+            <div class="col-sm-8">
+              <div class="input-group">
+                <p-autoComplete
+                  [autofocus]="true" 
+                  [(ngModel)]="assignedToValue"
+                  (onClear)="onClear($event)"
+                  (onChange)="checkUser()" 
+                  (onSelect)="onSelect($event)" 
+                  [suggestions]="userListRes"
+                  field="usernameID" 
+                  [forceSelection]="true"
+                  (completeMethod)="searchUserList($event)"
+                  name="assignToFormControl" 
+                  formControlName="assignToFormControl"
+                  title="Start typing a name to search" 
+                  placeholder="Start typing a name to search"
+                  class="form-control input-sm subm_autocomplete" 
+                  [inputStyle]="{'width':'22rem'}">
+                </p-autoComplete>	
+              </div>
+            </div>
+          </div>
+          
+          <!-- Assigned To Field - View Only -->
+          <div class="row" *ngIf="!isEditable">
+            <div class="col-sm-4 righttxt">
+              <label class="labelsty" for="assignToFormControl">Assigned To</label>
+            </div>
+            <div class="col-sm-5">
+              <div>
+                <span>{{supportGovernanceDetails?.AssignedTo}}</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- More Request Details -->
+          <div class="row">
+            <div class="col-sm-4 righttxt">
+              <label class="Input-Label">Result</label>
+            </div>
+            <div class="col-sm-5">
+              <span>{{supportGovernanceDetails?.SupportRequestResult}}</span>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-sm-4 righttxt">
+              <label class="Input-Label">Support/Feedback Type</label>
+            </div>
+            <div class="col-sm-5">
+              <span>{{supportGovernanceDetails?.SupportRequestType}}</span>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-sm-4 righttxt">
+              <label class="Input-Label">Page Name</label>
+            </div>
+            <div class="col-sm-5">
+              <span>{{supportGovernanceDetails?.PageName}}</span>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-sm-4 righttxt">
+              <label class="Input-Label">Item Id</label>
+            </div>
+            <div class="col-sm-5">
+              <span>{{supportGovernanceDetails?.ItemId}}</span>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-sm-4 righttxt">
+              <label class="Input-Label">Requestor Comments</label>
+            </div>
+            <div class="col-sm-5">
+              <span>{{supportGovernanceDetails?.RequestorComments}}</span>
+            </div>
+          </div>
+          
+          <!-- Response Form Fields (if no response yet) -->
+          <ng-container *ngIf="supportRequestResult === SupportRequestResultEnum.NoResponse">
+            <!-- Category Field -->
+            <div class="row">
+              <div class="col-sm-4 righttxt">
+                <label class="Input-Label" for="categorySelect">Category</label>
+              </div>
+              <div class="col-sm-5">
+                <select class="input-sm submission" formControlName="categorySelect" id="categorySelect"
+                  name="categorySelect" (change)="enableApproveDenyButtons($event)">
+                  <option [ngValue]="null">-- select one --</option>
+                  <option *ngFor="let category of categoryDropDownOptions" [ngValue]="category.id">
+                    {{category.title}}
+                  </option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- Impact Field -->
+            <div class="row">
+              <div class="col-sm-4 righttxt">
+                <label class="Input-Label" for="impactSelect">Impact</label>
+              </div>
+              <div class="col-sm-5">
+                <select class="input-sm submission" formControlName="impactSelect" name="impactSelect"
+                  (change)="enableApproveDenyButtons($event)" id="impactSelect">
+                  <option [ngValue]="null">-- select one --</option>
+                  <option *ngFor="let impact of impactDropDownOptions" [ngValue]="impact.id">
+                    {{impact.title}}
+                  </option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- Priority Field -->
+            <div class="row">
+              <div class="col-sm-4 righttxt">
+                <label class="Input-Label" for="prioritySelect">Priority</label>
+              </div>
+              <div class="col-sm-5">
+                <select class="input-sm submission" formControlName="prioritySelect" name="prioritySelect"
+                  (change)="enableApproveDenyButtons($event)" id="prioritySelect">
+                  <option [ngValue]="null">-- select one --</option>
+                  <option *ngFor="let priority of priorityDropDownOptions" [ngValue]="priority.id">
+                    {{priority.title}}
+                  </option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- Response Comments Field -->
+            <div class="row">
+              <div class="col-sm-4 righttxt">
+                <label class="Input-Label" for="responseComments">Response Comments</label>
+              </div>
+              <div class="col-sm-5">
+                <textarea class="textareaBox" formControlName="responseComments"
+                  id="responseComments" name="responseComments" rows="4"
+                  (input)="enableApproveDenyButtons($event)"></textarea>
+              </div>
+            </div>
+            
+            <!-- Response Category Field -->
+            <div class="row">
+              <div class="col-sm-4 righttxt">
+                <label class="Input-Label" for="responseCategorySelect">Response Category</label>
+              </div>
+              <div class="col-sm-5">
+                <select class="input-sm submission" formControlName="responseCategorySelect"
+                  id="responseCategorySelect" name="responseCategorySelect"
+                  (change)="enableApproveDenyButtons($event)">
+                  <option [ngValue]="null">-- select one --</option>
+                  <option *ngFor="let responseCategory of responseCategoryDropDownOptions"
+                    [ngValue]="responseCategory.id">
+                    {{responseCategory.title}}
+                  </option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- Status Field -->
+            <div class="row">
+              <div class="col-sm-4 righttxt">
+                <label class="Input-Label" for="statusSelect">Status</label>
+              </div>
+              <div class="col-sm-5">
+                <select class="input-sm submission" formControlName="statusSelect" name="statusSelect"
+                  (change)="enableApproveDenyButtons($event)" id="statusSelect">
+                  <option [ngValue]="null">-- select one --</option>
+                  <option *ngFor="let status of statusDropDownOptions" [ngValue]="status.id">
+                    {{status.title}}
+                  </option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- File Upload Section -->
+            <div class="row">
+              <div class="col-sm-4 righttxt">
+                <label class="Input-Label">Attachment</label>
+              </div>
+              <div class="col-sm-5">
+                <p class="text-info">
+                  <i><small>File uploads are limited to files smaller than {{ sizeLimit }}MB and must have one
+                    of the following extensions:
+                    doc, docx, xls, xlsx, pdf, PDF, txt, rtf, msg, zip, zipx, xlsb.</small></i>
+                </p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-4 righttxt">
+                <label class="Input-Label"></label>
+              </div>
+              <div class="col-sm-5">
+                <div>
+                  <input type="file" class="form-control" #fileDropRef id="fileDropRef"
+                    (change)="onFileChange($event)" multiple="multiple"
+                    accept=".doc,.docx,.xls,.xlsx,.pdf,.txt,.rtf,.msg,.zip,.zipx,.xlsb" />
+                </div>
+              </div>
+            </div>
+          </ng-container>
+		  
+<!-- Response Read-Only View (if response exists) -->
+<ng-container *ngIf="supportRequestResult !== SupportRequestResultEnum.NoResponse">
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+    </div>
+    <div class="col-sm-5">
+      <label class="Input-Label">Response</label>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Category</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{selectedCategoryTitle}}</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Impact</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{selectedImpactTitle}}</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Priority</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{selectedPriorityTitle}}</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label" for="categorySelect">Response Comments</label>
+    </div>
+    <div class="col-sm-5">
+      {{this.supportRequestResponseDetails?.Comments}}
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label" for="categorySelect">Response Category</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{selectedResponseCategoryTitle}}</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Status</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{selectedStatusTitle}}</span>
+    </div>
+  </div>
+</ng-container>
+</ng-container>
+
+<!-- Governance Request Section -->
+<ng-container *ngIf="supportType === SupportTypeEnum.Governance">
+  <div class="sfheader">
+    <h2 class="ml-3">{{pageTitle}}</h2>
+    <hr />
+  </div>
+  
+  <!-- Common Governance Details -->
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Requested by</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{supportGovernanceDetails?.RequestedBy}}</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Requested date</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{requestedDateInCustomFormat}}</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="labelsty" for="assignToFormControl">Assigned to</label>
+    </div>
+    <div class="col-sm-5">
+      <div>
+        {{supportGovernanceDetails?.AssignedTo}}
+      </div>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Result</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{supportGovernanceDetails?.SupportRequestResult}}</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Comments</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{supportGovernanceDetails?.Comments}}</span>
+    </div>
+  </div>
+  
+  <!-- Specific Governance Type Sections -->
+  <!-- Backdate Request Type -->
+  <ng-container *ngIf="supportRequestGovernanceType === SupportRequestGovernanceTypeEnum.Backdate">
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Page name/URL</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{backdate_PageTitle}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Backdate_Id</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{supportGovernanceDetails?.Backdate_Id}}</span>
+      </div>
+    </div>
+    
+    <!-- ActionItem specific fields -->
+    <ng-container *ngIf="backdate_PageType === SupportRequestGovernance_Backdate_PageEnum.ActionItem">
+      <div class="row">
+        <div class="col-sm-4 righttxt">
+          <label class="Input-Label">Action Item Field</label>
+        </div>
+        <div class="col-sm-5">
+          <span>{{supportGovernanceDetails?.ActionItemField}}</span>
+        </div>
+      </div>
+    </ng-container>
+    
+    <!-- OutREACH specific fields -->
+    <ng-container *ngIf="backdate_PageType === SupportRequestGovernance_Backdate_PageEnum.OutREACH">
+      <div class="row">
+        <div class="col-sm-4 righttxt">
+          <label class="Input-Label">Outreach Field</label>
+        </div>
+        <div class="col-sm-5">
+          <span>{{supportGovernanceDetails?.OutreachField}}</span>
+        </div>
+      </div>
+    </ng-container>
+    
+    <ng-container
+      *ngIf="backdate_PageType !== SupportRequestGovernance_Backdate_PageEnum.ActionItem && backdate_PageType !== SupportRequestGovernance_Backdate_PageEnum.OutREACH">
+      <div class="row">
+        <div class="col-sm-4 righttxt">
+          <label class="Input-Label">Unknown page</label>
+        </div>
+        <div class="col-sm-5">
+          <span></span>
+        </div>
+      </div>
+    </ng-container>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New date/time</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{backdate_NewDateInCustomFormat}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Backdate Comments</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{supportGovernanceDetails?.Backdate_Comments}}</span>
+      </div>
+    </div>
+  </ng-container>
+  
+  <!-- Activity Log Correction Request Type -->
+  <ng-container
+    *ngIf="supportRequestGovernanceType === SupportRequestGovernanceTypeEnum.ActivityLogCorrection">
+  </ng-container>
+  
+  <!-- Market Change Request Type -->
+  <ng-container *ngIf="supportRequestGovernanceType === SupportRequestGovernanceTypeEnum.MarketChange">
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">ID</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.MarketChange_IdSearch }}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Provider Name</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.MarketProviderName }}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Current Market</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.CurrentMarket }}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New Market</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.NewMarket }}</span>
+      </div>
+    </div>
+  </ng-container>
+  <!-- Region Change Request Type -->
+<ng-container *ngIf="supportRequestGovernanceType === SupportRequestGovernanceTypeEnum.RegionChange">
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Id</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.RegionChange_IdSearch }}</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Provider Name</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.RegionProviderName }}</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Current Region</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.CurrentRegion }}</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">New Region</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.NewRegion}}</span>
+    </div>
+  </div>
+</ng-container>
+
+<!-- NonParProviderChange Request Type -->
+<ng-container
+  *ngIf="supportRequestGovernanceType === SupportRequestGovernanceTypeEnum.NonParProviderChange">
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Provider Type</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.NonParProviderType}}</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">NonParProvider_Name</label>
+    </div>
+    <div class="col-sm-5">
+	<span>{{ supportGovernanceDetails?.NonParProvider_Name}}</span>
+</div>
+</div>
+
+<div class="row">
+  <div class="col-sm-4 righttxt">
+    <label class="Input-Label">Market</label>
+  </div>
+  <div class="col-sm-5">
+    <span>{{ supportGovernanceDetails?.NonParMarket}}</span>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-4 righttxt">
+    <label class="Input-Label">Region</label>
+  </div>
+  <div class="col-sm-5">
+    <span>{{ supportGovernanceDetails?.NonParRegion}}</span>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-4 righttxt">
+    <label class="Input-Label">Tier</label>
+  </div>
+  <div class="col-sm-5">
+    <span>{{ supportGovernanceDetails?.NonParProviderTier}}</span>
+  </div>
+</div>
+</ng-container>
+
+<!-- Reassign Request Type -->
+<ng-container *ngIf="supportRequestGovernanceType === SupportRequestGovernanceTypeEnum.Reassign">
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Action Item Name</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.ActionItemName}}</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Currently assigned to</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.CurrentlyAssignedTo}}</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">New assignment</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.ReassignUserName}}</span>
+    </div>
+  </div>
+</ng-container>
+
+<!-- BoBRequestUpdate Request Type -->
+<ng-container
+  *ngIf="supportRequestGovernanceType === SupportRequestGovernanceTypeEnum.BoBRequestUpdate">
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">ID</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.BoBRequestUpdate_Id}}</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Provider Name</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.ProviderName}}</span>
+    </div>
+  </div>
+  
+  <ng-container *ngIf="supportGovernanceDetails?.BoBRequestUpdate_RegionId">
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Current Region</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.CurrentRegion}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New Region</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.NewRegion}}</span>
+      </div>
+    </div>
+  </ng-container>
+  
+  <ng-container *ngIf="supportGovernanceDetails?.BoBRequestUpdate_MarketId">
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Current Market</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.CurrentMarket}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New Market</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.NewMarket}}</span>
+      </div>
+    </div>
+  </ng-container>
+  
+  <ng-container *ngIf="supportGovernanceDetails?.BoBRequestUpdate_ServiceTierId">
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Current ServiceTier</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.CurrentProviderTier}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New ServiceTier</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.NewProviderTier}}</span>
+      </div>
+    </div>
+  </ng-container>
+  
+  <ng-container *ngIf="supportGovernanceDetails?.BoBRequestUpdate_RoleId">
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Current Role</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.CurrentRole}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New Role</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.NewRole}}</span>
+      </div>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="supportGovernanceDetails?.BoBRequestUpdate_removeMember; else nonRemoveMember">
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Current User</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.CurrentUser}}</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">New User</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.NewUser}}</span>
+    </div>
+  </div>
+</ng-container>
+
+<ng-template #nonRemoveMember>
+  <ng-container *ngIf="supportGovernanceDetails?.BoBRequestUpdate_UserId">
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Current User</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.CurrentUser}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New User</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.NewUser}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Current Phone</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.CurrentPhone}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New Phone</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.NewPhone}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Current Phone Ext</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.CurrentPhoneExtension}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New Phone Ext</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.NewPhoneExtension}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Current Fax</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.CurrentFax}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New Fax</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.NewFax}}</span>
+      </div>
+    </div>
+  </ng-container>
+</ng-template>
+
+<!-- BoBRequestUpdateNonPar Request Type -->
+<ng-container
+  *ngIf="supportRequestGovernanceType === SupportRequestGovernanceTypeEnum.BoBRequestUpdateNonPar">
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">ID</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.BoBRequestUpdate_Id}}</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Provider Name</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.ProviderName}}</span>
+    </div>
+  </div>
+  
+  <ng-container *ngIf="supportGovernanceDetails?.BoBRequestUpdate_RegionId">
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Current Region</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.CurrentRegion}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New Region</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.NewRegion}}</span>
+      </div>
+    </div>
+  </ng-container>
+  
+  <ng-container *ngIf="supportGovernanceDetails?.BoBRequestUpdate_MarketId">
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Current Market</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.CurrentMarket}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New Market</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.NewMarket}}</span>
+      </div>
+    </div>
+  </ng-container>
+  
+  <ng-container *ngIf="supportGovernanceDetails?.BoBRequestUpdate_Segment">
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Current Segment</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.CurrentSegment}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New Segment</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.NewSegment}}</span>
+      </div>
+    </div>
+  </ng-container>
+  
+  <ng-container *ngIf="supportGovernanceDetails?.BoBRequestUpdate_RoleId">
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Current Role</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.CurrentRole}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New Role</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.NewRole}}</span>
+      </div>
+    </div>
+  </ng-container>
+  
+  <ng-container
+    *ngIf="supportGovernanceDetails?.BoBRequestUpdate_removeMember; else nonRemoveMemberBoBRequestUpdateNonPar">
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Current User</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.CurrentUser}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New User</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.NewUser}}</span>
+      </div>
+    </div>
+  </ng-container>
+  
+  <ng-template #nonRemoveMemberBoBRequestUpdateNonPar>
+    <ng-container *ngIf="supportGovernanceDetails?.BoBRequestUpdate_UserId">
+      <div class="row">
+        <div class="col-sm-4 righttxt">
+          <label class="Input-Label">Current User</label>
+        </div>
+        <div class="col-sm-5">
+          <span>{{ supportGovernanceDetails?.CurrentUser}}</span>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-sm-4 righttxt">
+          <label class="Input-Label">New User</label>
+        </div>
+        <div class="col-sm-5">
+          <span>{{ supportGovernanceDetails?.NewUser}}</span>
+        </div>
+      </div>
+    </ng-container>
+  </ng-template>
+</ng-container>
+<div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Current Phone</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.CurrentPhone}}</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">New Phone</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.NewPhone}}</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Current Phone Ext</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.CurrentPhoneExtension}}</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">New Phone Ext</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.NewPhoneExtension}}</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Current Fax</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.CurrentFax}}</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">New Fax</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.NewFax}}</span>
+    </div>
+  </div>
+</ng-container>
+</ng-template>
+</ng-container>
+
+<!-- BobRequestAdd Request Type -->
+<ng-container *ngIf="supportRequestGovernanceType === SupportRequestGovernanceTypeEnum.BobRequestAdd">
+  <ng-container *ngIf="supportGovernanceDetails?.Engagement_ProviderID">
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Provider</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.ProviderName}}</span>
+      </div>
+    </div>
+  </ng-container>
+  
+  <ng-container
+    *ngIf="(!supportGovernanceDetails?.Engagement_ProviderID) && supportGovernanceDetails?.Engagement_ProviderNonParID">
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Provider</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.ProviderName}}</span>
+      </div>
+    </div>
+  </ng-container>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Contact Type</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.ProviderContactType}}</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Email</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.Email}}</span>
+    </div>
+  </div>
+  
+  <ng-container *ngIf="supportGovernanceDetails?.Engagement_UserId">
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">User</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.User}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Phone</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.Phone}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Phone Ext</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.PhoneExtension}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Fax</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.Fax}}</span>
+      </div>
+    </div>
+  </ng-container>
+</ng-container>
+
+<!-- BoBFullUpdate Request Type -->
+<ng-container *ngIf="supportRequestGovernanceType === SupportRequestGovernanceTypeEnum.BoBFullUpdate">
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label">Manager Name</label>
+    </div>
+    <div class="col-sm-5">
+      <span>{{ supportGovernanceDetails?.ManagerName}}</span>
+    </div>
+  </div>
+  
+  <ng-container *ngIf="supportGovernanceDetails?.BoBRequestUpdate_UserId">
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Current User</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.CurrentUser}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Current Phone</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.CurrentPhone}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Current Phone Ext</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.CurrentPhoneExtension}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Current Fax</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.CurrentFax}}</span>
+      </div>
+    </div>
+  </ng-container>
+  
+  <ng-container *ngIf="supportGovernanceDetails?.Reassign_UserId">
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New User</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.NewUser}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New Phone</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.NewPhone}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New Phone Ext</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.NewPhoneExtension}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New Fax</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.NewFax}}</span>
+      </div>
+    </div>
+  </ng-container>
+</ng-container>
+<!-- BoBMngrRequestIndvBoBUpdate Request Type -->
+  <ng-container
+    *ngIf="supportRequestGovernanceType === SupportRequestGovernanceTypeEnum.BoBMngrRequestIndvBoBUpdate">
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Manager Name</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.ProviderName}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Provider Name</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.ProviderName}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Current User</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.CurrentUser}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Current Phone</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.CurrentPhone}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Current Phone Ext</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.CurrentPhoneExtension}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">Current Fax</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.CurrentFax}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New User</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.NewUser}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New Phone</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.NewPhone}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New Phone Ext</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.NewPhoneExtension}}</span>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <label class="Input-Label">New Fax</label>
+      </div>
+      <div class="col-sm-5">
+        <span>{{ supportGovernanceDetails?.NewFax}}</span>
+      </div>
+    </div>
+  </ng-container>
+  
+  <!-- Comments Field for Governance -->
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <label class="Input-Label" for="governanceComments">Comments</label>
+    </div>
+    <div class="col-sm-5">
+      <textarea class="form-control input-sm" formControlName="governanceComments"
+        id="governanceComments" name="governanceComments" rows="4"
+        (input)="enableApproveDenyButtons($event)"></textarea>
+    </div>
+  </div>
+</ng-container>
+
+<!-- Action Buttons Section -->
+<ng-container *ngIf="isEditable === true ; else buttonNonEditable">
+  <ng-container *ngIf="supportType === SupportTypeEnum.SupportFeedback; else buttonsForGovernance">
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <button class="btn btn-sm btn-primary btn-danger me-2" type="button" id="btnDeny"
+          [disabled]="disableDenyButtonForSupportFeedback"
+          (click)="handleSaveApproveDeny(2)">Deny</button>
+        <button class="btn btn-sm btn-primary me-2" type="button" id="btnApprove"
+          [disabled]="disableApproveButtonForSupportFeedback" 
+          (click)="handleSaveApproveDeny(1)">Approve</button>
+        <button class="btn btn-sm btn-primary me-2" type="button" id="btnSave"
+          (click)="handleSaveApproveDeny(0)">Save</button>
+      </div>
+    </div>
+  </ng-container>
+  
+  <ng-template #buttonsForGovernance>
+    <div class="row">
+      <div class="col-sm-4 righttxt">
+        <button class="btn btn-sm btn-primary btn-danger me-2" type="button" id="btnDeny"
+          (click)="handleSaveApproveDeny(2)">Deny</button>
+        <button class="btn btn-sm btn-primary me-2" type="button" id="btnApprove"
+          [disabled]="disableApproveButtonForGovernance" 
+          (click)="handleSaveApproveDeny(1)">Approve</button>
+      </div>
+    </div>
+  </ng-template>
+</ng-container>
+
+<ng-template #buttonNonEditable>
+  <div class="row">
+    <div class="col-sm-4 righttxt">
+      <button class="btn btn-sm btn-primary me-2"
+        (click)="redirectToLegacyAppHomeScreen()">Back</button>
+    </div>
+  </div>
+</ng-template>
+</div>
+
+<!-- Attachments Section -->
+<div class="col-md-6 body-content-2" style="margin-top: 10px;">
+  <ng-container *ngIf="hasAttachments">
+    <div class="text-left">
+      <h5 class="p-3 m-0 attchment-Header pt-0">Attachments</h5>
+    </div>
+    <div class="col-md-12 px-3">
+      <div>
+        <p class="p-3 m-0 table-header-name">File Name</p>
+      </div>
+      <table class="attachmnetTable">
+        <tbody>
+          <tr *ngFor="let attachment of supportGovernanceDetails?.AttachmentDetails" 
+              class="sfComp d-flex align-items-center;">
+            <span style="cursor: pointer;" (click)="downloadAttachment(attachment)">
+              <i id="download" class="pi pi-download"></i>
+            </span>
+            <td class="a-fileName">{{ attachment?.FileName }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+</div>
+</div>
+</form>
+</div>
