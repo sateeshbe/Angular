@@ -1,0 +1,589 @@
+<form [formGroup]="submissionDetailForm" #form="ngForm">
+	<div class="form-group row">
+		<div class="col-sm-7 Frame-37964">
+			<div class="form-group row">
+				<div class="accordion" id="accordionPanelsStayOpenExample">
+					<div class="" id="accordionPanelsStayOpenExample" style="margin-top: 23px;border: none;">
+						<div class="">
+							<div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show"
+								aria-labelledby="panelsStayOpen-headingOne">
+								<div class="accordion-body row p-0">
+									<div class="form-group row accSubm d-flex">
+										<div class="col-5">
+											<div class="row mb-3">
+												<label class="col-sm-5 col-form-label required">Action Item Name</label>
+												<div class="col-sm-7">
+													<input class="form-control input-sm submission submissionEnable"
+														style="color: #495057;" type="text" id="Name" name="Name"
+														formControlName="Name" placeholder="">
+													<div *ngIf="submissionDetailForm.get('Name').invalid && submissionDetailForm.get('Name').touched"
+														class="error">
+														The Action Item Name field is required.
+													</div>
+												</div>
+											</div>
+											<div class="row mb-3" style="margin-top: 3%;">
+												<label class="col-sm-5 col-form-label">Notify Upon
+													Completion</label>
+												<div class="col-sm-7">
+													<input type="checkbox" style="width: 18px;height: 29px; position: relative;" id="ExternalNotifyOnClose" name="ExternalNotifyOnClose"
+														formControlName="ExternalNotifyOnClose">
+												</div>
+											</div>
+											<div class="row mb-3">
+												<label class="col-sm-5 col-form-label required">Team</label>
+												<div class="col-sm-7">
+													<select type="number" (change)="onChangeValue($event)"
+														class="input-sm submissionEnable gClone" formControlName="ValidationTeam" id="ValidationTeam"
+														[(ngModel)]="teamId"
+														style="width: 100%;">
+														<!-- <option value=""  selected>-- select one --</option> -->
+														<option *ngFor="let b of ExternalSubTeam" [ngValue]="b.Id" title="{{b.Tooltip}}" [disabled]="b.disabled">{{
+															b.Title }} </option>
+													</select>
+													<div *ngIf="submissionDetailForm.get('ValidationTeam').invalid && submissionDetailForm.get('ValidationTeam').touched"
+														class="error">
+														The field Team is required.
+													</div>
+													<div *ngIf="externalSubmissionService.payerValidationFailed && teamDrpValue == 6"
+														class="error">
+														The Payer submission tab must be filled out to add this to Payer
+														Solutions Matrix Partner. </div>
+												</div>
+
+											</div>
+											<div class="row mb-3" *ngIf="teamDrpValue ==4">
+												<label class="col-sm-5 col-form-label">Line of Business</label>
+												<div class="col-sm-7">
+													<select class="adminSelect"
+														formControlName="ActionItemLineOfBusinessId" type="text"
+														id="ActionItemLineOfBusinessId"
+														name="ActionItemLineOfBusinessId">
+														<option value="" selected>-- select one --</option>
+														<option *ngFor="let b of LineOfBusinessDrp" [ngValue]="b.Id">{{
+															b.Title }}</option>
+													</select>
+												</div>
+											</div>
+
+											<div class="row mb-3">
+												<label class="col-sm-5 col-form-label required">Intake Source</label>
+												<div class="col-sm-7">
+													<select class="adminSelect"
+														formControlName="ActionItemIntakeSourceId" type="text"
+														id="ActionItemIntakeSourceId" name="ActionItemIntakeSourceId">
+														<option value="" selected>-- select one --</option>
+														<option *ngFor="let b of IntakeSource" [ngValue]="b.Id">{{
+															b.Title
+															}}</option>
+													</select>
+													<div *ngIf="submissionDetailForm.get('ActionItemIntakeSourceId').invalid && submissionDetailForm.get('ActionItemIntakeSourceId').touched"
+														class="error">
+														The field Intake Source is required.
+													</div>
+												</div>
+
+											</div>
+
+											<div class="row mb-3" *ngIf="teamDrpValue !=4 && submissionDetailForm.get('ActionItemIntakeSourceId').value == 1">
+												<label class="col-sm-5 col-form-label required">External Submission IntakeSource Other</label>
+												<div class="col-sm-7">
+													<input class="form-control input-sm submission submissionEnable"
+														style="color: #495057;" type="text" id="Name" name="Name"
+														[(ngModel)]="ExternalSubmissionIntakeSourceOther" [ngModelOptions]="{standalone: true}" placeholder="">
+													<div *ngIf="submissionDetailForm.get('ActionItemIntakeSourceId').invalid && submissionDetailForm.get('ActionItemIntakeSourceId').touched"
+														class="error">
+														The field External Submission IntakeSource Other required.
+													</div>
+												</div>
+
+											</div>
+
+											<div class="row mb-3">
+												<label class="col-sm-5 col-form-label required">Issue Type</label>
+												<div class="col-sm-7">
+													<select class="adminSelect" formControlName="ActionItemIssueTypeId"
+														type="text" id="ActionItemIssueTypeId"
+														name="ActionItemIssueTypeId" #ActionItemIssueTypeId
+														(change)="onChangeIssues($event)">
+														<option value="" selected>-- select one --</option>
+														<option *ngFor="let k of IssueTypeDrp" [ngValue]="k.Id">{{
+															k.Title
+															}}</option>
+													</select>
+													<div *ngIf="submissionDetailForm.get('ActionItemIssueTypeId').invalid && submissionDetailForm.get('ActionItemIssueTypeId').touched"
+														class="error">
+														Issue Type is required
+													</div>
+												</div>
+
+											</div>
+											<div class="row mb-3">
+												<label class="col-sm-5 col-form-label required">Issue Reason</label>
+
+												<!-- Show "Select an issue type first" if Team or Issue Type is not selected -->
+												<div class="col-sm-7">
+													<select class="adminSelect"
+														formControlName="ActionItemIssueReasonId"
+														id="ActionItemIssueReasonId" name="ActionItemIssueReasonId">
+														<option value="" selected>-- select an issue type first --
+														</option>
+														<option *ngFor="let b of IssueReasonDrp" [ngValue]="b.Id">{{
+															b.Title
+															}}</option>
+													</select>
+													<!-- Validation error message -->
+													<div *ngIf="submissionDetailForm.get('ActionItemIssueReasonId').invalid && submissionDetailForm.get('ActionItemIssueReasonId').touched"
+														class="error">
+														Issue Reason is required.
+													</div>
+												</div>
+
+											</div>
+
+											<div class="row mb-3" *ngIf="teamDrpValue ==4">
+												<label class="col-sm-5 col-form-label required">Type</label>
+												<div class="col-sm-7">
+													<select class="adminSelect" formControlName="ActionItemTypeId"
+														type="text" id="ActionItemTypeId" name="ActionItemTypeId">
+														<option value="" >-- select one --</option>
+														<option *ngFor="let b of ActionItemType" [ngValue]="b.Id" [selected]='b.Id == 2'>{{
+															b.Title
+															}}</option>
+													</select>
+												</div>
+												<div *ngIf="submissionDetailForm.get('ActionItemTypeId').invalid && submissionDetailForm.get('ActionItemTypeId').touched"
+														class="error">
+														Type is required.
+													</div>
+
+											</div>
+
+											<div class="row mb-3">
+												<label class="col-sm-5 col-form-label required">Cigna Received
+													Date</label>
+
+												<div class="col-sm-7">
+													<p-calendar appendTo="body" inputStyleClass="survey-Calender w-full"
+														inputId="buttondisplay" formControlName="CignaReceivedDate"
+														id="CignaReceivedDate" name="CignaReceivedDate"
+														icon="pi pi-chevron-down" dateFormat="m/d/yyyy" #myCalender
+														[style]="{'width':'26vw'}" [(ngModel)]="CignaRecvyesterday"
+														[inputStyle]="{'width':'25vw'}"
+														(onFocus)="OnFocusCalender($event)" inputId="buttondisplay"
+														[showClear]="true" [showIcon]="true" [showOnFocus]="false"
+														InputDateMask>
+													</p-calendar>
+													<div *ngIf="submissionDetailForm.get('CignaReceivedDate').invalid && submissionDetailForm.get('CignaReceivedDate').touched"
+														class="error">
+														Cigna Received is required.
+													</div>
+												</div>
+
+											</div>
+
+											<div class="row mb-3" *ngIf="teamDrpValue ==4">
+												<label class="col-sm-5 col-form-label">CHCP User ID</label>
+
+												<div class="col-sm-7">
+													<input class="form-control input-sm submissionEnable"
+														style="color: #495057;" type="text" formControlName="CHCPUserId"
+														id="CHCPUserId" name="CHCPUserId">
+												</div>
+
+											</div>
+
+											<div class="row mb-3" *ngIf="teamDrpValue ==4">
+												<label class="col-sm-5 CHCP User ID
+												col-form-label">NaviNet User ID</label>
+
+												<div class="col-sm-7">
+													<input class="form-control input-sm submissionEnable"
+														style="color: #495057;" type="text"
+														formControlName="NavinetUserId" type="text" id="NavinetUserId"
+														name="NavinetUserId">
+												</div>
+
+											</div>
+
+											<div class="row mb-3" *ngIf="teamDrpValue ==9">
+												<label class="col-sm-5 col-form-label">Medicare Escalation
+													Type</label>
+												<div class="col-sm-7">
+													<select class="adminSelect" formControlName="MedicareEscalationId" type="text"
+														id="MedicareEscalationId" name="MedicareEscalationId">
+														<option value="" selected>-- select one --</option>
+														<option *ngFor="let b of MedicareEscalation" [ngValue]="b.Id">{{
+															b.Title }}</option>
+													</select>
+												</div>
+
+											</div>
+
+
+											<div class="row mb-3"
+												*ngIf="teamDrpValue !=4 && teamDrpValue !=3 && teamDrpValue !=9 && teamDrpValue !='' ">
+												<label class="col-sm-5 col-form-label required">Claim Volume</label>
+												<div class="col-sm-7">
+													<select class="adminSelect" formControlName="ClaimVolume"
+														type="text" id="ClaimVolume" name="ClaimVolume">
+														<option value="" selected>-- select one --</option>
+														<option *ngFor="let b of ClaimVolumeDrp" [ngValue]="b.Id">{{
+															b.Title
+															}}</option>
+													</select>
+														<div *ngIf="submissionDetailForm.get('ClaimVolume').invalid && submissionDetailForm.get('ClaimVolume').touched"
+														class="error">
+														Claim Volume is required.
+													</div>
+												</div>
+											</div>
+
+											<div class="row mb-3"
+												*ngIf="teamDrpValue ==2 && teamDrpValue !='' ">
+												<label class="col-sm-5 col-form-label required">Client Name</label>
+												<div class="col-sm-7">
+													<input class="form-control input-sm submissionEnable"
+														style="color: #495057;"
+														formControlName="ClientName" type="text" id="ClientName"
+														name="ClientName">
+														<div *ngIf="submissionDetailForm.get('ClientName').invalid && submissionDetailForm.get('ClientName').touched"
+														class="error">
+														Client Name is required.
+													</div>
+												</div>
+											</div>
+
+											<div class="row mb-3"
+												*ngIf="teamDrpValue ==2 && teamDrpValue !=''">
+												<label class="col-sm-5 col-form-label required">Client Number</label>
+												<div class="col-sm-7">
+													<input class="form-control input-sm submissionEnable"
+														style="color: #495057;"
+														formControlName="ClientNumber" type="number" id="ClientNumber"
+														name="ClientNumber">
+													<div *ngIf="submissionDetailForm.get('ClientNumber').invalid && submissionDetailForm.get('ClientNumber').touched"
+														class="error">
+														Client Number is required.
+													</div>
+												</div>
+											</div>
+
+											<div class="row mb-3" *ngIf="teamDrpValue ==1">
+												<label class="col-sm-5 col-form-label required">Provider Type</label>
+												<div class="col-sm-7">
+													<select class="adminSelect" formControlName="HcpType"
+														type="text" id="HcpType" name="HcpType">
+														<option value="" selected>-- select one --</option>
+														<option *ngFor="let d of ProviderTypeDrp" [ngValue]="d.Id">{{
+															d.Title }}</option>
+													</select>
+												</div>
+
+											</div>
+
+											<div class="row mb-3" *ngIf="(teamDrpValue ==1) || (teamDrpValue == 3 && submissionDetailForm.get('ActionItemIssueTypeId').value == 2)">
+												<label class="col-sm-5 col-form-label">Provider late/retro
+													load?</label>
+												<div class="col-sm-7">
+													<select class="adminSelect" formControlName="LatePaymentInterest"
+														type="text" id="LatePaymentInterest" name="LatePaymentInterest">
+														<option *ngFor="let b of ActionItemLatePaymentInterestDrp"
+															[ngValue]="b.Id">{{ b.Title }}</option>
+													</select>
+												</div>
+
+											</div>
+											<div class="row mb-3" *ngIf="(teamDrpValue ==1) || (teamDrpValue == 3 && submissionDetailForm.get('ActionItemIssueTypeId').value == 2)" style="margin-top: 3%;">
+												<label class="col-sm-5 col-form-label">Escalated?</label>
+															<div class="col-sm-7">
+																<input type="checkbox" style=" width: 18px;
+															height: 29px; position: relative;" id="IsEscalated" name="IsEscalated" (change)="onChangeEscalated($event)" formControlName="IsEscalated">
+															</div>
+											</div>
+											<div class="row mb-3" *ngIf="(teamDrpValue ==1) || (teamDrpValue == 3 && submissionDetailForm.get('ActionItemIssueTypeId').value == 2)">
+												<label class="col-sm-5 col-form-label">SLA Days (#)</label>
+												<div class="col-sm-7">
+													<input class="form-control input-sm submissionEnable"
+														style="color: #495057;" type="text" id="SlaDays" name="SlaDays"
+														formControlName="SlaDays" placeholder="">
+														<div *ngIf="submissionDetailForm.get('SlaDays').invalid && submissionDetailForm.get('SlaDays').touched"
+														class="error">
+														Required when escalated
+													</div>
+												</div>
+
+											</div>
+
+											
+											<div class="row mb-3" *ngIf="teamDrpValue !=4 && teamDrpValue !=9 && teamDrpValue !=3">
+												<label class="col-sm-5 col-form-label required">Follow up Date</label>
+												<!-- <input class="form-control input-sm submission" type="date" formControlName="FollowUpDate"
+												 id="FollowUpDate" name="FollowUpDate"> -->
+												<div class="col-sm-7">
+													<p-calendar appendTo="body" inputStyleClass="survey-Calender w-full"
+														inputId="buttondisplay" formControlName="FollowUpDate"
+														id="FollowUpDate" name="FollowUpDate" icon="pi pi-chevron-down"
+														dateFormat="m/d/yyyy" #myCalender [style]="{'width':'26vw'}"
+														[(ngModel)]="FollowUpDateYes"
+														(onFocus)="OnFocusFollowupCalender($event)"
+														[inputStyle]="{'width':'25vw'}" [showClear]="true"
+														[showIcon]="true" [showOnFocus]="false" inputId="buttondisplay"
+														[ngModelOptions]="{standalone: true}" InputDateMask>
+													</p-calendar>
+													<div *ngIf="submissionDetailForm.get('FollowUpDate').invalid && submissionDetailForm.get('FollowUpDate').touched"
+														class="error">
+														Follow up Date is required.
+													</div>
+												</div>
+
+											</div>
+											<div class="row mb-3"
+												*ngIf="teamDrpValue ==3">
+												<label class="col-sm-5 col-form-label">Follow up Date</label>
+												<div class="col-sm-7">
+													<p-calendar appendTo="body" inputStyleClass="survey-Calender w-full"
+														inputId="buttondisplay" formControlName="FollowUpDate"
+														id="FollowUpDate" name="FollowUpDate" icon="pi pi-chevron-down"
+														dateFormat="m/d/yyyy" #myCalender [style]="{'width':'26vw'}"
+														[(ngModel)]="FollowUpDateYes"
+														(onFocus)="OnFocusFollowupCalender($event)"
+														[inputStyle]="{'width':'25vw'}" [showClear]="true"
+														[showIcon]="true" [showOnFocus]="false" inputId="buttondisplay"
+														[ngModelOptions]="{standalone: true}" InputDateMask>
+													</p-calendar>
+												</div>
+											</div>
+
+											<div class="row mb-3"
+												*ngIf="teamDrpValue ==4 && teamDrpValue != 3">
+												<label class="col-sm-5 col-form-label">Follow up Date</label>
+												<div class="col-sm-7">
+													<p-calendar appendTo="body" inputStyleClass="survey-Calender w-full"
+														inputId="buttondisplay"
+														formControlName="LastRequestedFollowUpDate"
+														id="LastRequestedFollowUpDate" name="LastRequestedFollowUpDate"
+														icon="pi pi-chevron-down" dateFormat="m/d/yyyy" #myCalender
+														[style]="{'width':'26vw'}"
+														[(ngModel)]="LastRequestedFollowUpDateYes"
+														[inputStyle]="{'width':'25vw'}"
+														(onFocus)="OnFocusLsMdFollowupCalender($event)"
+														inputId="buttondisplay" [showClear]="true" [showIcon]="true"
+														[showOnFocus]="false" InputDateMask>
+													</p-calendar>
+												</div>
+											</div>
+											<div class="form-group row adm">
+												<div class="row mb-3" *ngIf="isVms">
+													<label class="col-sm-5 col-form-label required">Issue
+														Description</label>
+													<div class="col-sm-7"  style="position: relative;left: 7px;">
+														<textarea id="description" [(ngModel)]="CommentsTxt"
+															[ngModelOptions]="{standalone: true}" type="text"
+															id="CommentsTxt" rows="4" cols="40" maxlength="4000"
+															class="form-control txtB input-sm submission"></textarea>
+														<div class="characters commentsCharacter"><span>{{CommentsTxt ? CommentsTxt.length : 0}}</span>/4000
+															Characters
+														</div>
+														<div *ngIf="CommentsTxt?.length == 0" class="error">Issue Description is required.
+													</div>
+													</div>
+													
+
+												</div>
+												<div class="row mb-3" *ngIf="!isVms">
+													<label class="col-sm-5 col-form-label required">Comments</label>
+													<div class="col-sm-7" style="position: relative;left: 7px;">
+														<textarea id="description" [(ngModel)]="CommentsTxt" (paste)="onPaste($event)"
+															[ngModelOptions]="{standalone: true}" type="text"
+															id="CommentsTxt" rows="8" cols="40" maxlength="4000"
+															class="form-control txtB input-sm submission"></textarea>
+														<div class="characters commentsCharacter"><span>{{CommentsTxt ? CommentsTxt.length : 0}}</span>/4000
+															Characters
+														</div>
+														<div *ngIf="CommentsTxt?.length == 0"
+															class="error">
+															Comments is required.
+														</div>
+														
+														<div class="att" style="color: #008fb3;">
+															<small><i>Attachments can be added once the Complete button
+																	has
+																	been selected.</i></small>
+														</div>
+													</div>
+
+												</div>
+												<div class="col-sm-12">
+													<div class="text-center">
+														<button type="button" (click)="confirm()"
+															class="btn btn-primary mb-5" style="padding: 8px;width: 128px;margin-left: 12%;">
+															Complete
+														</button>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="col-7">
+											<div class="col-sm-12 leftStart externalDivTable divTable p-3 mb-0"
+												*ngIf="teamDrpValue =='3' || teamDrpValue =='9' || teamDrpValue =='4' || teamDrpValue =='5'">
+												<label class="col-sm-5 col-form-label required" style="color: var(--labelTxtColor);">Contacts</label>
+												<form [formGroup]="invoiceForm">
+													<table border="1" class="exttable">
+														<thead>
+															<th>Name</th>
+															<th>Phone #</th>
+															<th>Ext #</th>
+															<th>Email</th>
+															<th>Type</th>
+															<th>Action</th>
+														</thead>
+														<tbody formArrayName="Rows">
+															<tr *ngFor="let itemrow of invoiceForm.controls['Rows']['controls']; let i=index;"
+																[formGroupName]="i">
+																<td>
+																	<input *ngIf="tableArr[i].isEdit"
+																		formControlName="ContactName"
+																		class="form-control" style="width: 90%;" />
+																	<input *ngIf="!tableArr[i].isEdit"
+																		[value]="tableArr[i].ContactName || ''"
+																		class="form-control" style="width: 90%;"
+																		readonly />
+																	<div  style='font-size: 12px;' *ngIf="formArr.controls[i].get('ContactName').invalid && formArr.controls[i].get('ContactName').touched"
+																		class="error">
+																		This field is required
+																	</div>
+																</td>
+																<td>
+																	<input *ngIf="tableArr[i].isEdit"
+																		formControlName="ContactPhone"
+																		class="form-control" style="width: 90%;"
+																		placeholder="(____) ____-_____"
+																		(input)="formatPhoneNumber($event, i)"
+																		maxlength="14" />
+
+																	<input *ngIf="!tableArr[i].isEdit"
+																		[value]="tableArr[i].ContactPhone || ''"
+																		class="form-control" style="width: 90%;"
+																		readonly />
+
+																	<!-- Display "This field is required" if phone is empty -->
+																	<div style='font-size: 12px;' *ngIf="formArr.controls[i].get('ContactPhone').invalid && formArr.controls[i].get('ContactPhone').touched" class="error">
+																		Entered Phone number must be 10 digits long
+																</div>
+
+																	<!-- Display "This field needs attention" if phone format is incorrect -->
+																	<!-- <div *ngIf="formArr.controls[i].get('phone').hasError('pattern') && formArr.controls[i].get('phone').touched" class="error">
+																		This field needs attention
+																</div> -->
+																</td>
+
+																<td>
+																	<input *ngIf="tableArr[i].isEdit"
+																		formControlName="Extension" class="form-control"
+																		style="width: 90%;" type="text" maxlength="10"
+																		(input)="validateExt($event, i)"
+																		(keypress)="restrictExtInput($event)"
+																		placeholder="__________" />
+
+																	<input *ngIf="!tableArr[i].isEdit"
+																		[value]="tableArr[i].Extension || ''"
+																		class="form-control" style="width: 90%;"
+																		readonly />
+																</td>
+																<td>
+																	<input *ngIf="tableArr[i].isEdit"
+																		formControlName="ContactEmail"
+																		class="form-control" style="width: 90%;" />
+																	<input *ngIf="!tableArr[i].isEdit"
+																		[value]="tableArr[i].ContactEmail || ''"
+																		class="form-control" style="width: 90%;"
+																		readonly />
+																	<div style='font-size: 12px;' *ngIf="formArr.controls[i].get('ContactEmail').invalid && formArr.controls[i].get('ContactEmail').touched"
+																		class="error">
+																		This field is required
+																	</div>
+																</td>
+																<td>
+																	<!-- <select *ngIf="tableArr[i].isEdit"  formControlName="Type" class="form-control" style="width: 90%;">
+																		<option value="Default">Default</option>
+																</select> -->
+																	<select *ngIf="tableArr[i].isEdit"
+																		class="input-sm submissionEnable gClone"
+																		formControlName="ActionItemContactTypeId"
+																		style="width: 90%;">
+																		<!-- <option [ngValue]="" selected>Default</option> -->
+																		<option *ngFor="let b of ContactTypeDrp"
+																			[ngValue]="b.Id" [selected]="b.Id">{{ b.Title }}</option>
+																	</select>
+																	<input *ngIf="!tableArr[i].isEdit"
+																		[value]="tableArr[i].contactTypeName || 'Default'"
+																		class="form-control" style="width: 90%;"
+																		readonly />
+
+																</td>
+																<td>
+																	<button
+																		
+																		(click)="deleteRow(i)" class="iconbtn"
+																		title="Delete">
+																		<i class="fa fa-trash" aria-hidden="true"
+																			style="font-size: 16px;"></i>
+																	</button>
+																	<button *ngIf="tableArr[i]?.isEdit"
+																		(click)="onSave(i)" class="iconbtn"
+																		title="Save">
+																		<i class="fa fa-save"
+																			style="font-size: 16px;"></i>
+																	</button>
+																	<button *ngIf="!tableArr[i]?.isEdit"
+																		(click)="onEdit(i)" class="iconbtn"
+																		title="Edit">
+																		<i class="fa fa-edit"
+																			style="font-size: 16px;"></i>
+																	</button>
+																	<button
+																		*ngIf="(invoiceForm.controls['Rows']['controls'].length===i+1)"
+																		type="button" (click)="addNewRow()"
+																		class="iconbtn" title="Add New Row">
+																		<i class="fa fa-plus"
+																			style="font-size: 16px;"></i>
+																	</button>
+																</td>
+															</tr>
+														</tbody>
+													</table>
+												</form>
+												<div *ngIf="!invoiceForm.valid && invoiceForm.get('Rows').touched"
+															class="error">
+															Contacts are required.
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<p-confirmDialog key="positionDialog" [position]="'top'" (onHide)="onHideDialog()" [visible]="showDialog"
+		#idleDialog [style]="{ width: '35vw' }">
+		<ng-template pTemplate="header">
+			<h5>Do you want to attach files to this action item?</h5>
+		</ng-template>
+		<ng-template pTemplate="footer">
+			<button type="button" class="btn btn-primary" (click)="createSubmit(true)"
+				style="min-width: 120px;">Yes</button>
+			<button type="button" class="btn btn-secondary" (click)="createSubmit(false)"
+				style="min-width: 100px;">No</button>
+			<button type="button" (click)="idleDialog.reject()" class="btn btn-outline-secondary"
+				style="min-width: 130px;">Cancel</button>
+		</ng-template>
+	</p-confirmDialog>
+
+	<p-toast></p-toast>
+</form>
